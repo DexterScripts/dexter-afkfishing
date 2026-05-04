@@ -264,7 +264,6 @@ local function removeSellBlip()
 end
 
 local function initializeFishing()
-    CreateFishingZones()
     CreateBlips()
     createSellPed()
     createSellBlip()

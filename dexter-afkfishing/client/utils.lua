@@ -1,12 +1,3 @@
-local zonesCreated = false
-local activeZoneCounts = {
-    Pier = 0,
-    Fresh = 0,
-    River = 0,
-    Swamp = 0,
-    Ocean = 0,
-    Illegal = 0
-}
 local zoneOrder = {'Pier', 'Fresh', 'River', 'Swamp', 'Ocean', 'Illegal'}
 
 local Items = {
@@ -15,61 +6,24 @@ local Items = {
     Fish = Config.CatchPools
 }
 
-function CreateFishingZones()
-    if zonesCreated then return end
-
-    for zoneName, zoneType in pairs(Config.Zones) do
-        local index = 1
-
-        for _, zoneData in pairs(zoneType) do
-            lib.zones.sphere({
-                name = zoneName .. index,
-                coords = zoneData.coords,
-                radius = zoneData.radius,
-                debug = Config.Debug,
-                zoneName = zoneName,
-                onEnter = function(self)
-                    local count = activeZoneCounts[self.zoneName] or 0
-                    activeZoneCounts[self.zoneName] = count + 1
-                end,
-                onExit = function(self)
-                    local count = activeZoneCounts[self.zoneName] or 0
-                    activeZoneCounts[self.zoneName] = math.max(count - 1, 0)
-                end
-            })
-
-            index += 1
-        end
-    end
-
-    zonesCreated = true
-end
-
 ---@return string 'Pier' | 'Fresh' | 'River' | 'Swamp' | 'Ocean' | 'Illegal' | 'None'
 function GetPlayerZone()
+    local ped = PlayerPedId()
+    if ped == 0 then return 'None' end
+
+    local coords = GetEntityCoords(ped)
+    local playerCoords = vec2(coords.x, coords.y)
+
     for i = 1, #zoneOrder do
         local zoneName = zoneOrder[i]
-        if (activeZoneCounts[zoneName] or 0) > 0 then
-            return zoneName
-        end
-    end
+        local areas = Config.Zones[zoneName] or {}
 
-    local ped = PlayerPedId()
-    if ped ~= 0 then
-        local coords = GetEntityCoords(ped)
-        local playerCoords = vec2(coords.x, coords.y)
+        for j = 1, #areas do
+            local zoneCoords = areas[j].coords
+            local areaCoords = vec2(zoneCoords.x, zoneCoords.y)
 
-        for i = 1, #zoneOrder do
-            local zoneName = zoneOrder[i]
-            local areas = Config.Zones[zoneName] or {}
-
-            for j = 1, #areas do
-                local zoneCoords = areas[j].coords
-                local areaCoords = vec2(zoneCoords.x, zoneCoords.y)
-
-                if #(playerCoords - areaCoords) <= areas[j].radius then
-                    return zoneName
-                end
+            if #(playerCoords - areaCoords) <= areas[j].radius then
+                return zoneName
             end
         end
     end
