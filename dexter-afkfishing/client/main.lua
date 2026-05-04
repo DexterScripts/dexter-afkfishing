@@ -264,6 +264,7 @@ local function removeSellBlip()
 end
 
 local function initializeFishing()
+    CreateFishingZones()
     CreateBlips()
     createSellPed()
     createSellBlip()
@@ -330,6 +331,7 @@ AddEventHandler('onResourceStop', function(resource)
     if resource ~= GetCurrentResourceName() then return end
 
     tickStarted = false
+    RemoveFishingZones()
     cleanUpPed()
     removeSellPed()
     removeSellBlip()
