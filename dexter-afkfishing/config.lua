@@ -5,6 +5,8 @@ Config.Debug = false
 Config.DiscordLogs = false
 Config.DiscordWebhook = ''
 
+Config.ZPhoneNotifications = true
+
 Config.Delay = 5 -- (s) Delay between fishing attempts
 
 Config.Skill = {

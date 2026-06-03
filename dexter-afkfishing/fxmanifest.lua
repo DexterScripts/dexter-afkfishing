@@ -16,4 +16,6 @@ client_scripts {'client/utils.lua', 'client/main.lua'}
 
 dependencies {'qbx_core', 'ox_inventory', 'ox_target', 'ox_lib', 'mz-skills'}
 
+optional_dependencies {'z-phone'}
+
 lua54 'yes'

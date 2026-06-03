@@ -6,6 +6,21 @@ local function notify(source, message, notifyType)
     exports.qbx_core:Notify(source, message, notifyType or 'inform')
 end
 
+local function getFishLabel(itemName)
+    local ok, item = pcall(function() return exports.ox_inventory:Items(itemName) end)
+    return (ok and item and item.label) or itemName
+end
+
+local function sendZPhoneNotif(src, message)
+    if not Config.ZPhoneNotifications then return end
+    if GetResourceState('z-phone') ~= 'started' then return end
+    TriggerClientEvent('z-phone:client:sendNotifInternal', src, {
+        type = 'Notification',
+        from = 'Fishing',
+        message = message
+    })
+end
+
 ---@param min number
 ---@param max number
 ---@return number
@@ -153,6 +168,7 @@ RegisterNetEvent('dexter-afkfishing:server:GoFishing', function(level)
     end
 
     TriggerClientEvent('dexter-afkfishing:client:CatchSuccess', src)
+    sendZPhoneNotif(src, ('You caught a %s!'):format(getFishLabel(fish)))
 
     if Config.Debug then
         print(('Fish received: %s | Zone: %s'):format(fish, zone))
@@ -186,6 +202,7 @@ RegisterNetEvent('dexter-afkfishing:server:SellFish', function()
 
     exports.qbx_core:AddMoney(src, Config.SellMoneyType, price, 'sold-fish')
     notify(src, ('You sold %s fish for $%s.'):format(fish, price), 'success')
+    sendZPhoneNotif(src, ('You sold %s fish for $%s!'):format(fish, price))
 
     if Config.DiscordLogs then
         logToDiscord(src, {
